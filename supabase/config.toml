@@ -1,0 +1,23 @@
+# Supabase local/project config. `project_id` is set on `supabase link`.
+project_id = "en-voiture"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[realtime]
+enabled = true
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+
+[functions]
+# Edge Functions (Web Push, session lifecycle) are added in later phases.
