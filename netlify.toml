@@ -1,0 +1,13 @@
+# Deploy config for Netlify — lets the app be built & hosted straight from the
+# GitHub repo (no local machine needed). Set the two VITE_ env vars in the
+# Netlify UI (Site settings → Environment variables) before building.
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+# SPA fallback so client routes resolve to index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
