@@ -120,3 +120,49 @@ button:disabled { opacity: 0.5; cursor: default; }
 .gameover { text-align: center; }
 .gameover .score { font-size: 2.6rem; font-weight: 800; color: var(--accent); margin: 8px 0; font-variant-numeric: tabular-nums; }
 .gameover .cause { color: var(--warn); margin-top: 10px; }
+
+/* Tabs */
+.tabs { margin-left: auto; display: flex; gap: 6px; }
+.tab { background: var(--panel-2); color: var(--muted); padding: 6px 10px; font-size: 0.85rem; }
+.tab.on { background: var(--accent); color: #05202b; }
+
+/* Planning */
+.planning { display: grid; gap: 14px; }
+.profile-card { padding: 12px; }
+.profile-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; }
+.profile-legend .speed { color: var(--accent); }
+.profile-legend .sw { color: var(--crit); }
+.profile-legend .st { color: #7ee0a0; }
+.profile-legend .thr { color: #7ee0a0; }
+.profile-legend .brk { color: var(--warn); }
+
+.profile { width: 100%; height: 200px; background: var(--bg); border-radius: 8px; touch-action: manipulation; }
+.profile .grid { stroke: var(--panel-2); stroke-width: 1; }
+.profile .speed-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+.profile .grad-up { fill: #b3541e; opacity: 0.7; }
+.profile .grad-down { fill: #1e6db3; opacity: 0.7; }
+.profile .grad-flat { fill: var(--panel-2); }
+.profile .pt-switch { stroke: var(--crit); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.profile .pt-station { stroke: #7ee0a0; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.profile .mark { font-size: 16px; }
+.profile .mark.throttle { fill: #7ee0a0; }
+.profile .mark.brake { fill: var(--warn); }
+.profile .mark.charbon { fill: #d9a441; }
+.profile .mark.applied { opacity: 0.35; }
+.profile .now { stroke: #fff; stroke-width: 1.5; }
+.profile .now-label { font-size: 16px; }
+
+.hint { font-size: 0.82rem; color: var(--muted); margin: 0 0 10px; }
+.plan-form { display: grid; gap: 12px; }
+.plan-form label { display: grid; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+.plan-form input[type='number'], .plan-form select {
+  padding: 10px; border-radius: 8px; border: 1px solid var(--panel-2);
+  background: var(--bg); color: var(--ink); font-size: 1rem;
+}
+.plan-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.plan-list li { display: flex; align-items: center; gap: 10px; background: var(--bg); border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; }
+.plan-list li.applied { opacity: 0.5; }
+.plan-list .pk { color: var(--accent); font-variant-numeric: tabular-nums; min-width: 60px; }
+.plan-list .what { flex: 1; }
+.plan-list .done { color: #7ee0a0; font-size: 0.8rem; }
+.plan-list .del { background: transparent; color: var(--crit); padding: 2px 8px; border: 1px solid var(--panel-2); }

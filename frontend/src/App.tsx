@@ -7,6 +7,7 @@ import { LobbyScreen } from './pages/LobbyScreen';
 import { LobbyHome } from './pages/LobbyHome';
 import { GameOverScreen } from './pages/GameOverScreen';
 import { DriverView } from './features/driver/DriverView';
+import { PlanningView } from './features/planning/PlanningView';
 
 export default function App() {
   const [authReady, setAuthReady] = useState(false);
@@ -67,14 +68,35 @@ function LobbyRouter({ lobbyId, onLeave }: { lobbyId: string; onLeave: () => voi
     );
   }
 
-  // Active session → drive. Compact lobby bar keeps the code/crew visible.
+  // Active session → drive or plan.
+  return <ActiveSession lobbyCode={lobby.code} memberCount={members.length} sessionId={session.id} />;
+}
+
+function ActiveSession({
+  lobbyCode,
+  memberCount,
+  sessionId,
+}: {
+  lobbyCode: string;
+  memberCount: number;
+  sessionId: string;
+}) {
+  const [tab, setTab] = useState<'drive' | 'plan'>('drive');
   return (
     <>
       <div className="lobbybar">
-        <span className="code-chip">{lobby.code}</span>
-        <span className="muted">👥 {members.length}</span>
+        <span className="code-chip">{lobbyCode}</span>
+        <span className="muted">👥 {memberCount}</span>
+        <div className="tabs">
+          <button className={tab === 'drive' ? 'tab on' : 'tab'} onClick={() => setTab('drive')}>
+            🎮 Conduite
+          </button>
+          <button className={tab === 'plan' ? 'tab on' : 'tab'} onClick={() => setTab('plan')}>
+            🗺️ Plan
+          </button>
+        </div>
       </div>
-      <DriverView sessionId={session.id} />
+      {tab === 'drive' ? <DriverView sessionId={sessionId} /> : <PlanningView sessionId={sessionId} />}
     </>
   );
 }

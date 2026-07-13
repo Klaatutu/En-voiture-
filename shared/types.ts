@@ -71,3 +71,16 @@ export interface LobbyMember {
   /** Joined client-side from players for display. */
   pseudo?: string;
 }
+
+export type PlannedActionType = 'throttle' | 'brake' | 'charbon';
+
+export interface PlannedAction {
+  id: string;
+  session_id: string;
+  position_km: number;
+  action_type: PlannedActionType;
+  /** 0..1 for throttle/brake; ignored for charbon. */
+  value: number;
+  applied: boolean;
+  created_at: string;
+}
