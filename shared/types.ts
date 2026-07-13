@@ -56,3 +56,18 @@ export interface Player {
   pseudo: string;
   monnaie_persistante: number;
 }
+
+export interface Lobby {
+  id: string;
+  nom: string;
+  code: string;
+  statut: LobbyStatus;
+}
+
+export interface LobbyMember {
+  lobby_id: string;
+  player_id: string;
+  joined_at: string;
+  /** Joined client-side from players for display. */
+  pseudo?: string;
+}

@@ -40,7 +40,3 @@ export const trainActions = {
       .rpc('action_set_mode_veille', { p_session: session, p_value: value })
       .then(logError('veille')),
 };
-
-/** Create a session with an initialised train for a lobby. */
-export const startSession = (lobbyId: string) =>
-  supabase.rpc('start_session', { p_lobby: lobbyId });

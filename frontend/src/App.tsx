@@ -1,77 +1,80 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
-import { startSession } from './lib/actions';
+import { ensurePlayer } from './lib/lobby';
+import { useLobbyGame } from './hooks/useLobbyGame';
+import { PseudoGate } from './pages/PseudoGate';
+import { LobbyScreen } from './pages/LobbyScreen';
+import { LobbyHome } from './pages/LobbyHome';
+import { GameOverScreen } from './pages/GameOverScreen';
 import { DriverView } from './features/driver/DriverView';
 
-/**
- * Phase 1 harness. Auth is anonymous (cooperative trust model); lobby/session
- * management gets its real UI in Phase 2. For now this lets you spin up a
- * session and drive, to exercise the server simulation end-to-end.
- */
 export default function App() {
-  const [ready, setReady] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(
-    () => localStorage.getItem('ev_session') || null,
-  );
-  const [busy, setBusy] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [pseudo, setPseudo] = useState<string | null>(() => localStorage.getItem('ev_pseudo'));
+  const [lobbyId, setLobbyId] = useState<string | null>(() => localStorage.getItem('ev_lobby'));
 
+  // Anonymous auth (cooperative trust model), then re-assert the player row.
   useEffect(() => {
-    // Anonymous auth so RLS 'authenticated' policies pass.
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) await supabase.auth.signInAnonymously();
-      setReady(true);
+      // Anonymous identity is per-device and may be new; re-upsert the player.
+      const savedPseudo = localStorage.getItem('ev_pseudo');
+      if (savedPseudo) await ensurePlayer(savedPseudo).catch(() => {});
+      setAuthReady(true);
     });
   }, []);
 
-  async function newSession() {
-    setBusy(true);
-    // Minimal bootstrap: create a throwaway lobby, then a session.
-    const { data: lobby } = await supabase
-      .from('lobbies')
-      .insert({ nom: 'Lobby de test' })
-      .select('id')
-      .single();
-    if (lobby) {
-      const { data: sid } = await startSession(lobby.id);
-      if (sid) {
-        setSessionId(sid as string);
-        localStorage.setItem('ev_session', sid as string);
-      }
-    }
-    setBusy(false);
+  function enterLobby(id: string) {
+    localStorage.setItem('ev_lobby', id);
+    setLobbyId(id);
   }
-
-  if (!ready) return <main className="app"><p className="muted">Connexion…</p></main>;
+  function leaveLobby() {
+    localStorage.removeItem('ev_lobby');
+    setLobbyId(null);
+  }
 
   return (
     <main className="app">
       <header>
         <h1>🚂 En voiture !</h1>
-        <div className="header-actions">
-          <button onClick={newSession} disabled={busy}>
-            {busy ? '…' : 'Nouvelle partie'}
-          </button>
-          {sessionId && (
-            <button
-              className="ghost"
-              onClick={() => {
-                localStorage.removeItem('ev_session');
-                setSessionId(null);
-              }}
-            >
-              Quitter
-            </button>
-          )}
-        </div>
+        {pseudo && <span className="whoami">👤 {pseudo}</span>}
       </header>
-
-      {sessionId ? (
-        <DriverView sessionId={sessionId} />
+      {!authReady ? (
+        <p className="muted">Connexion…</p>
+      ) : !pseudo ? (
+        <PseudoGate onReady={setPseudo} />
+      ) : !lobbyId ? (
+        <LobbyScreen onEntered={enterLobby} />
       ) : (
-        <p className="muted">
-          Démarrez une partie pour prendre les commandes du train.
-        </p>
+        <LobbyRouter lobbyId={lobbyId} onLeave={leaveLobby} />
       )}
     </main>
+  );
+}
+
+/** Routes between waiting room / driving / game over based on session status. */
+function LobbyRouter({ lobbyId, onLeave }: { lobbyId: string; onLeave: () => void }) {
+  const { lobby, session, members, loading } = useLobbyGame(lobbyId);
+
+  if (loading || !lobby) return <p className="muted">Chargement du lobby…</p>;
+
+  if (!session || session.statut === 'terminee') {
+    // No session yet → waiting room. A finished session → game over screen.
+    return session ? (
+      <GameOverScreen lobby={lobby} session={session} members={members} onLeave={onLeave} />
+    ) : (
+      <LobbyHome lobby={lobby} members={members} onLeave={onLeave} />
+    );
+  }
+
+  // Active session → drive. Compact lobby bar keeps the code/crew visible.
+  return (
+    <>
+      <div className="lobbybar">
+        <span className="code-chip">{lobby.code}</span>
+        <span className="muted">👥 {members.length}</span>
+      </div>
+      <DriverView sessionId={session.id} />
+    </>
   );
 }

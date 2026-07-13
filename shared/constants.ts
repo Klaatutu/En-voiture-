@@ -68,6 +68,25 @@ export const SIM = {
    * avoid a huge single-step jump. Configurable.
    */
   TICK_MAX_DT_S: 30,
+
+  // --- Phase 2: incident thresholds -------------------------------------
+  /**
+   * Crossing an 'aiguillage' point faster than vitesse_cible·(1+margin)
+   * derails the train (game over). Rewards braking before switches.
+   */
+  OVERSPEED_MARGIN_AIGUILLAGE: 0.2,
+  /**
+   * Speed at/below which the train counts as stopped. Coal-out only ends the
+   * game once the train has actually coasted to a stop (recoverable until).
+   */
+  STOP_EPSILON_KMH: 0.5,
 } as const;
+
+/** Session end causes (game_sessions.cause_fin). */
+export const CAUSE_FIN = {
+  panne_charbon: 'Panne sèche — charbon épuisé',
+  deraillement_aiguillage: 'Déraillement — aiguillage pris trop vite',
+} as const;
+export type CauseFin = keyof typeof CAUSE_FIN;
 
 export type SimConfig = typeof SIM;
